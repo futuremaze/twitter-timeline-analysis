@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Building an Environment for Analyzing Twitter Timeline with  Amazon Comprehend.
+
+Resources:
+  DataStoreS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        - Key: Project
+          Value: twitter-timeline-analysis
+
+Outputs:
+  DataStoreS3Bucket:
+    Description: S3 bucket to store data.
+    Value: !Ref DataStoreS3Bucket
