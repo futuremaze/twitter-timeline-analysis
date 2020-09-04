@@ -9,7 +9,65 @@ Resources:
         - Key: Project
           Value: twitter-timeline-analysis
 
+  TwitterDashboardFirehoseRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: TwitterDashboard-Firehose
+      Description: Role to upload data of Twitter Timeline from Kinesis Firehose to S3 bucket.
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - firehose.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Ref TwitterDashboardFirehosePolicy
+      Tags:
+        - Key: Project
+          Value: twitter-timeline-analysis
+
+  TwitterDashboardFirehosePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: TwitterDashboard-Firehose-Policy
+      Description: Allow to upload data of Twitter Timeline from Kinesis Firehose to S3 bucket.
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:AbortMultipartUpload"
+              - "s3:GetBucketLocation"
+              - "s3:GetObject"
+              - "s3:ListBucket"
+              - "s3:ListBucketMultipartUploads"
+              - "s3:PutObject"
+            Resource:
+              - !Sub "${DataStoreS3Bucket.Arn}"
+              - !Sub "${DataStoreS3Bucket.Arn}/*"
+          - Effect: Allow
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+              - "logs:DescribeLogStreams"
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/*"
+
 Outputs:
   DataStoreS3Bucket:
     Description: S3 bucket to store data.
     Value: !Ref DataStoreS3Bucket
+
+  TwitterDashboardFirehoseRole:
+    Description: Role to upload data of Twitter Timeline from Kinesis Firehose to S3 bucket.
+    Value: !Ref TwitterDashboardFirehoseRole
+
+  TwitterDashboardFirehosePolicy:
+    Description: Allow to upload data of Twitter Timeline from Kinesis Firehose to S3 bucket.
+    Value: !Ref TwitterDashboardFirehosePolicy
