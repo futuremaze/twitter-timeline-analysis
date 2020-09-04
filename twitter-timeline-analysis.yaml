@@ -59,6 +59,45 @@ Resources:
             Resource:
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/*"
 
+  TwitterDashboardRaw:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: Twitter-Dashboard-Raw
+      DeliveryStreamType: DirectPut
+      S3DestinationConfiguration:
+        BucketARN: !Sub ${DataStoreS3Bucket.Arn}
+        Prefix: raw/
+        BufferingHints:
+          IntervalInSeconds: 60
+          SizeInMBs: 5
+        RoleARN: !Sub ${TwitterDashboardFirehoseRole.Arn}
+
+  TwitterDashboardSentiment:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: Twitter-Dashboard-Sentiment
+      DeliveryStreamType: DirectPut
+      S3DestinationConfiguration:
+        BucketARN: !Sub ${DataStoreS3Bucket.Arn}
+        Prefix: sentiment/
+        BufferingHints:
+          IntervalInSeconds: 60
+          SizeInMBs: 5
+        RoleARN: !Sub ${TwitterDashboardFirehoseRole.Arn}
+
+  TwitterDashboardEntities:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: Twitter-Dashboard-Entities
+      DeliveryStreamType: DirectPut
+      S3DestinationConfiguration:
+        BucketARN: !Sub ${DataStoreS3Bucket.Arn}
+        Prefix: entities/
+        BufferingHints:
+          IntervalInSeconds: 60
+          SizeInMBs: 5
+        RoleARN: !Sub ${TwitterDashboardFirehoseRole.Arn}
+
 Outputs:
   DataStoreS3Bucket:
     Description: S3 bucket to store data.
@@ -71,3 +110,15 @@ Outputs:
   TwitterDashboardFirehosePolicy:
     Description: Allow to upload data of Twitter Timeline from Kinesis Firehose to S3 bucket.
     Value: !Ref TwitterDashboardFirehosePolicy
+
+  TwitterDashboardRaw:
+    Description: firehose delivery stream for raw data.
+    Value: !Ref TwitterDashboardRaw
+
+  TwitterDashboardSentiment:
+    Description: firehose delivery stream for sentiment data.
+    Value: !Ref TwitterDashboardSentiment
+
+  TwitterDashboardEntities:
+    Description: firehose delivery stream for entity data.
+    Value: !Ref TwitterDashboardEntities
