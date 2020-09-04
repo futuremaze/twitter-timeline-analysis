@@ -1,6 +1,38 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Building an Environment for Analyzing Twitter Timeline with  Amazon Comprehend.
 
+Parameters:
+  ConsumerApiKey:
+    Description: Twitter App API key.
+    Type: String
+    NoEcho: True
+
+  ConsumerApiSecret:
+    Description: Twitter App Secret key.
+    Type: String
+    NoEcho: True
+
+  AccessToken:
+    Description: Twitter App Access token.
+    Type: String
+    NoEcho: True
+
+  AccessTokenSecret:
+    Description: Twitter App Access token secret.
+    Type: String
+    NoEcho: True
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Twitter App
+        Parameters:
+          - ConsumerApiKey
+          - ConsumerApiSecret
+          - AccessToken
+          - AccessTokenSecret
+
 Resources:
   DataStoreS3Bucket:
     Type: AWS::S3::Bucket
@@ -98,6 +130,22 @@ Resources:
           SizeInMBs: 5
         RoleARN: !Sub ${TwitterDashboardFirehoseRole.Arn}
 
+  TwitterAPISecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: TwitterAPI-Secrets
+      Description: Secrets of Twitter App.
+      SecretString: !Sub |
+        {
+          "ConsumerApiKey": "${ConsumerApiKey}",
+          "ConsumerApiSecret": "${ConsumerApiSecret}",
+          "AccessToken": "${AccessToken}",
+          "AccessTokenSecret": "${AccessTokenSecret}"
+        }
+      Tags:
+        - Key: Project
+          Value: twitter-timeline-analysis
+
 Outputs:
   DataStoreS3Bucket:
     Description: S3 bucket to store data.
@@ -122,3 +170,7 @@ Outputs:
   TwitterDashboardEntities:
     Description: firehose delivery stream for entity data.
     Value: !Ref TwitterDashboardEntities
+
+  TwitterAPISecrets:
+    Description: Secrets of Twitter App.
+    Value: !Ref TwitterAPISecrets
